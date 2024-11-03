@@ -42,7 +42,7 @@ void tcp_server() {
                 break;
             }
             
-            printf("TCP: server (%zu) <%s>\n", read_n, buffer);
+            printf("server: TCP (%zu) <%s>\n", read_n, buffer);
 
             strcat(buffer, "(server response)");
             send(client_socket, buffer, strlen(buffer), 0);
@@ -57,15 +57,24 @@ void tcp_server() {
 void udp_server() { 
     int server_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
-    sockaddr_in server_addr = createServerAddr();
+    sockaddr_in server_addr     = createServerAddr();
+    sockaddr_in client_addr     = {};
+    socklen_t   client_addr_len = sizeof(client_addr);
 
     bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
     while(true) {
         char buffer[kBufferSize] = {};
-        size_t read_n = read(server_socket, buffer, sizeof(buffer));
+        memset(buffer, 0, kBufferSize);
 
-        printf("UDP (%zu) <%s>\n", read_n, buffer);
+        size_t read_n = recvfrom(server_socket, buffer, sizeof(buffer), 0,
+                                 (sockaddr*)&client_addr, &client_addr_len);
+
+        printf("server: UDP (%zu) <%s>\n", read_n, buffer);
+
+        strcat(buffer, "(server response)");
+        sendto(server_socket, buffer, strlen(buffer), 0, 
+               (sockaddr*)&client_addr, client_addr_len);
     }
 
     close(server_socket);
