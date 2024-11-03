@@ -1,2 +1,5 @@
 bin
 obj
+log_server
+log_client
+log

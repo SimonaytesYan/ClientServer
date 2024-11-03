@@ -11,10 +11,12 @@ void tcp_client();
 
 int main(int argc, char** argv) {
 
-    if (strcmp(argv[1], "tcp")) {
+    if (!strcmp(argv[1], "tcp")) {
+        printf("TCP client\n");
         tcp_client();
     }
     else {
+        printf("UDP client\n");
         udp_client();
     }
 }
