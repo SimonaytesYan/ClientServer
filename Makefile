@@ -7,6 +7,10 @@ run_tcp: prepare $(BIN)/server $(BIN)/client
 	./$(BIN)/server "tcp" &
 	./$(BIN)/client "tcp" & 
 
+run_udp: prepare $(BIN)/server $(BIN)/client
+	./$(BIN)/server "udp" &
+	./$(BIN)/client "udp" & 
+
 kill:
 	kill -9 %1
 
@@ -17,8 +21,8 @@ $(BIN)/client: client/main.cpp server/server.cpp
 	$(COMPILER) $(FLAGS) client/main.cpp server/server.cpp -o $(BIN)/client
 
 clean:
-	rm $(BIN)/.*
-	rm $(OBJ)/.*
+	rm $(BIN)/*
+	rm $(OBJ)/*
 
 prepare:
 	-mkdir $(BIN)

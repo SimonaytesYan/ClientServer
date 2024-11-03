@@ -10,7 +10,6 @@ void udp_client();
 void tcp_client();
 
 int main(int argc, char** argv) {
-
     if (!strcmp(argv[1], "tcp")) {
         printf("TCP client\n");
         tcp_client();
@@ -38,5 +37,7 @@ void udp_client() {
 
     sockaddr_in server_addr = createServerAddr();
 
-    send(clientSocket, message, strlen(message), 0);
+    sendto(clientSocket, message, strlen(message), MSG_CONFIRM, 
+           (sockaddr*)&server_addr, sizeof(server_addr));
+    close(clientSocket);
 }

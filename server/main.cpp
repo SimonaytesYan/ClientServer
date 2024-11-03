@@ -36,7 +36,7 @@ void tcp_server() {
         char buffer[kBufferSize] = {};
         size_t read_n = recv(clientSocket, buffer, sizeof(buffer), 0);
 
-        printf("request (%zu):\n <%s>\n", read_n, buffer);
+        printf("TCP request (%zu):\n <%s>\n", read_n, buffer);
     }
 
     close(server_socket);
@@ -53,7 +53,7 @@ void udp_server() {
         char buffer[kBufferSize] = {};
         size_t read_n = read(server_socket, buffer, sizeof(buffer));
 
-        printf("request (%zu):\n <%s>\n", read_n, buffer);
+        printf("UDP request (%zu):\n <%s>\n", read_n, buffer);
     }
 
     close(server_socket);
