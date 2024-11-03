@@ -1,22 +1,40 @@
-#include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-int main() {
+#include "../server/server.hpp"
+
+const char* message = "Hello world!\n";
+
+void udp_client();
+void tcp_client();
+
+int main(int argc, char** argv) {
+
+    if (strcmp(argv[1], "tcp")) {
+        tcp_client();
+    }
+    else {
+        udp_client();
+    }
+}
+
+void tcp_client() {
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 
-    sockaddr_in server_addr = {};
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(8080);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
+    sockaddr_in server_addr = createServerAddr();
 
     connect(clientSocket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
-    const char* message = "Hello world!\n";
     send(clientSocket, message, strlen(message), 0);
 
     close(clientSocket);
+}
+
+void udp_client() {
+    int clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
+
+    sockaddr_in server_addr = createServerAddr();
+
+    send(clientSocket, message, strlen(message), 0);
 }

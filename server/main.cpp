@@ -1,30 +1,54 @@
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+#include  "server.hpp"
+
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 
 const size_t kConnectionReqs = 1;
 const size_t kBufferSize = 1024;
 
-int main() {
+void tcp_server();
+void udp_server();
+
+int main(int argc, char** argv) {
+    if (strcmp(argv[1], "tcp")) {
+        tcp_server();
+    }
+    else {
+        udp_server();
+    }
+}
+
+void tcp_server() { 
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    sockaddr_in server_addr = {};
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(8080);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-
+    sockaddr_in server_addr = createServerAddr();
 
     bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
     listen(server_socket, kConnectionReqs);
 
-    
     while(true) {
         int clientSocket = accept(server_socket, nullptr, nullptr);
         char buffer[kBufferSize] = {};
         size_t read_n = recv(clientSocket, buffer, sizeof(buffer), 0);
+
+        printf("request (%zu):\n <%s>\n", read_n, buffer);
+    }
+
+    close(server_socket);
+}
+
+void udp_server() { 
+    int server_socket = socket(AF_INET, SOCK_DGRAM, 0);
+
+    sockaddr_in server_addr = createServerAddr();
+
+    bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
+
+    while(true) {
+        char buffer[kBufferSize] = {};
+        size_t read_n = read(server_socket, buffer, sizeof(buffer));
 
         printf("request (%zu):\n <%s>\n", read_n, buffer);
     }
