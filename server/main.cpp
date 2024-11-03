@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     }
 }
 
-void tcp_server() { 
+void tcp_server() {
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     sockaddr_in server_addr = createServerAddr();
@@ -31,12 +31,24 @@ void tcp_server() {
 
     listen(server_socket, kConnectionReqs);
 
-    while(true) {
-        int clientSocket = accept(server_socket, nullptr, nullptr);
-        char buffer[kBufferSize] = {};
-        size_t read_n = recv(clientSocket, buffer, sizeof(buffer), 0);
+    while(true) { 
+        int client_socket = accept(server_socket, nullptr, nullptr);
 
-        printf("TCP request (%zu):\n <%s>\n", read_n, buffer);
+        char buffer[kBufferSize] = {};
+        while (true) {
+            ssize_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
+            if (read_n == 0) {
+                printf("server: stop reading\n");
+                break;
+            }
+            
+            printf("TCP: server (%zu) <%s>\n", read_n, buffer);
+
+            strcat(buffer, "(server response)");
+            send(client_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, kBufferSize);
+        }
+        close(client_socket);
     }
 
     close(server_socket);
@@ -53,7 +65,7 @@ void udp_server() {
         char buffer[kBufferSize] = {};
         size_t read_n = read(server_socket, buffer, sizeof(buffer));
 
-        printf("UDP request (%zu):\n <%s>\n", read_n, buffer);
+        printf("UDP (%zu) <%s>\n", read_n, buffer);
     }
 
     close(server_socket);

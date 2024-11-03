@@ -4,15 +4,12 @@ COMPILER = g++
 FLAGS = -O2
 
 run_tcp: prepare $(BIN)/server $(BIN)/client
-	./$(BIN)/server "tcp" &
-	./$(BIN)/client "tcp" & 
+#	./$(BIN)/server "tcp" &
+#	./$(BIN)/client "tcp" & 
 
 run_udp: prepare $(BIN)/server $(BIN)/client
 	./$(BIN)/server "udp" &
 	./$(BIN)/client "udp" & 
-
-kill:
-	kill -9 %1
 
 $(BIN)/server: server/main.cpp server/server.cpp
 	$(COMPILER) $(FLAGS) server/main.cpp server/server.cpp -o $(BIN)/server

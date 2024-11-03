@@ -4,7 +4,10 @@
 
 #include "../server/server.hpp"
 
-const char* message = "Hello world!\n";
+const char* message = "Hello world!";
+
+const size_t kBufferSize = 1024;
+const char* kEndRequests = "stop";
 
 void udp_client();
 void tcp_client();
@@ -21,23 +24,36 @@ int main(int argc, char** argv) {
 }
 
 void tcp_client() {
-    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     sockaddr_in server_addr = createServerAddr();
 
-    connect(clientSocket, (struct sockaddr*)&server_addr, sizeof(server_addr));
+    connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
-    send(clientSocket, message, strlen(message), 0);
+    while (true) {
+        char buffer[kBufferSize] = {};
+        scanf("%s", buffer);
 
-    close(clientSocket);
+        if (!strcmp(buffer, kEndRequests))
+            break;
+
+        send(client_socket, buffer, strlen(buffer), 0);
+    
+        memset(buffer, 0, kBufferSize);
+
+        size_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
+        printf("TCP client: (%zu)<%s>\n", read_n, buffer);
+    }
+
+    close(client_socket);
 }
 
 void udp_client() {
-    int clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    int client_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
     sockaddr_in server_addr = createServerAddr();
 
-    sendto(clientSocket, message, strlen(message), MSG_CONFIRM, 
+    sendto(client_socket, message, strlen(message), MSG_CONFIRM, 
            (sockaddr*)&server_addr, sizeof(server_addr));
-    close(clientSocket);
+    close(client_socket);
 }
