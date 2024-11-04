@@ -32,15 +32,14 @@ void tcp_client() {
 
     while (true) {
         char buffer[kBufferSize] = {};
-        scanf("%s", buffer);
 
+        scanf("%s", buffer);
         if (!strcmp(buffer, kEndRequests))
             break;
 
         send(client_socket, buffer, strlen(buffer), 0);
     
         memset(buffer, 0, kBufferSize);
-
         size_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
         printf("client: TCP (%zu)<%s>\n", read_n, buffer);
     }
@@ -55,8 +54,8 @@ void udp_client() {
     socklen_t   server_addr_len = sizeof(server_addr);
     while (true) {
         char buffer[kBufferSize] = {};
+        
         scanf("%s", buffer);
-
         if (!strcmp(buffer, kEndRequests))
             break;
 
@@ -64,10 +63,8 @@ void udp_client() {
                (sockaddr*)&server_addr, server_addr_len);
         
         memset(buffer, 0, kBufferSize);
-
         size_t read_n = recvfrom(client_socket, buffer, sizeof(buffer), 0,
                                  nullptr, nullptr);
-                        // read(client_socket, buffer, sizeof(buffer));
         printf("client: UDP (%zu)<%s>\n", read_n, buffer);
     }
 

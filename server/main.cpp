@@ -5,7 +5,8 @@
 #include <unistd.h>
 
 const size_t kConnectionReqs = 1;
-const size_t kBufferSize = 1024;
+const size_t kBufferSize     = 1024;
+const char*  kEndRequests    = "stop";
 
 void tcp_server();
 void udp_server();
@@ -34,19 +35,23 @@ void tcp_server() {
     while(true) { 
         int client_socket = accept(server_socket, nullptr, nullptr);
 
-        char buffer[kBufferSize] = {};
         while (true) {
+            char buffer[kBufferSize] = {};
+
             ssize_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
             if (read_n == 0) {
                 printf("server: stop reading\n");
                 break;
             }
-            
-            printf("server: TCP (%zu) <%s>\n", read_n, buffer);
 
-            strcat(buffer, "(server response)");
-            send(client_socket, buffer, strlen(buffer), 0);
+            printf("server: TCP (%zu) <%s>\n", read_n, buffer);
             memset(buffer, 0, kBufferSize);
+
+            scanf("%s", buffer);
+            if (!strcmp(buffer, kEndRequests))
+                break;
+
+            send(client_socket, buffer, strlen(buffer), 0);
         }
         close(client_socket);
     }
@@ -71,8 +76,12 @@ void udp_server() {
                                  (sockaddr*)&client_addr, &client_addr_len);
 
         printf("server: UDP (%zu) <%s>\n", read_n, buffer);
+        memset(buffer, 0, kBufferSize);
 
-        strcat(buffer, "(server response)");
+        scanf("%s", buffer);
+        if (!strcmp(buffer, kEndRequests))
+            break;
+
         sendto(server_socket, buffer, strlen(buffer), 0, 
                (sockaddr*)&client_addr, client_addr_len);
     }
