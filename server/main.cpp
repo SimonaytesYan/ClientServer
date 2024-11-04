@@ -32,6 +32,7 @@ void tcp_server() {
 
     listen(server_socket, kConnectionReqs);
 
+    bool end_recv = false;
     while(true) { 
         int client_socket = accept(server_socket, nullptr, nullptr);
 
@@ -48,12 +49,17 @@ void tcp_server() {
             memset(buffer, 0, kBufferSize);
 
             scanf("%s", buffer);
-            if (!strcmp(buffer, kEndRequests))
+            if (!strcmp(buffer, kEndRequests)) {
+                end_recv = true;
                 break;
+            }
 
             send(client_socket, buffer, strlen(buffer), 0);
         }
         close(client_socket);
+
+        if (end_recv)
+            break;
     }
 
     close(server_socket);
