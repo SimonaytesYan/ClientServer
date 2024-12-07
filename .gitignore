@@ -3,3 +3,4 @@ obj
 log_server
 log_client
 log
+*log

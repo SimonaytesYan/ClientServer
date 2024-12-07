@@ -9,5 +9,5 @@ struct SSLEndpoint {
 };
 
 void initSSL();
-
-void initEndpoint(SSLEndpoint* ep, bool is_server);
+void initServerEndpoint(SSLEndpoint* ep, int socket);
+void initClientEndpoint(SSLEndpoint* ep, int socket);

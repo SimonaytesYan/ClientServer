@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "../tls/tls.hpp"
+#include "../logPrintf.hpp"
+
 const size_t kConnectionReqs = 1;
 const size_t kBufferSize     = 1024;
 const char*  kEndRequests    = "stop";
@@ -14,42 +17,56 @@ void udp_server();
 int main(int argc, char** argv) {
 
     if (argc != 2) {
-        printf("Wrong numer of arguments\n");
+        LOG_PRINTF("Wrong numer of arguments\n");
     }
 
     if (!strcmp(argv[1], "tcp")) {
-        printf("TCP server\n");
+        LOG_PRINTF("TCP server\n");
         tcp_server();
     }
     else {
-        printf("UDP server\n");
+        LOG_PRINTF("UDP server\n");
         udp_server();
     }
 }
 
 void tcp_server() {
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-
     sockaddr_in server_addr = createServerAddr();
-
     bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
     listen(server_socket, kConnectionReqs);
 
+    initSSL();
+    LOG_PRINTF("Init ssl successfully\n");
+
+    LOG_PRINTF("Init endpoint successfully\n");
+
     bool end_recv = false;
     while(true) { 
+
         int client_socket = accept(server_socket, nullptr, nullptr);
+
+        SSLEndpoint ep;
+        initServerEndpoint(&ep, client_socket);
+
+        int err = SSL_accept(ep.ssl);
+        if (err <= 0) {
+            LOG_PRINTF("Error creating SSL connection.  err=%x\n", err);
+            return;
+        }
+        LOG_PRINTF("SSL_accept successfully!\n");
 
         while (true) {
             char buffer[kBufferSize] = {};
-
-            ssize_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
+            
+            int read_n = SSL_read(ep.ssl, buffer, sizeof(buffer));
             if (read_n == 0) {
-                printf("server: stop reading\n");
+                LOG_PRINTF("server: stop reading\n");
                 break;
             }
 
-            printf("server: TCP (%zu) <%s>\n", read_n, buffer);
+            LOG_PRINTF("server: TCP (%d) <%s>\n", read_n, buffer);
             memset(buffer, 0, kBufferSize);
 
             scanf("%s", buffer);
@@ -57,8 +74,9 @@ void tcp_server() {
                 end_recv = true;
                 break;
             }
-
-            send(client_socket, buffer, strlen(buffer), 0);
+    
+            SSL_write(ep.ssl, buffer, strlen(buffer));
+            // send(client_socket, buffer, strlen(buffer), 0);
         }
         close(client_socket);
 
@@ -85,7 +103,7 @@ void udp_server() {
         size_t read_n = recvfrom(server_socket, buffer, sizeof(buffer), 0,
                                  (sockaddr*)&client_addr, &client_addr_len);
 
-        printf("server: UDP (%zu) <%s>\n", read_n, buffer);
+        LOG_PRINTF("server: UDP (%d) <%s>\n", read_n, buffer);
         memset(buffer, 0, kBufferSize);
 
         scanf("%s", buffer);
