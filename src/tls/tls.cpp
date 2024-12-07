@@ -63,19 +63,12 @@ void initServerEndpoint(SSLEndpoint* ep, int socket) {
     }
 
     SSL_CTX_set_keylog_callback(ep->ctx, SLLKeyLogCallback);
-
     SSL_CTX_set_options(ep->ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
 
 
-    LOG_PRINTF("Set options successfully\n");        
     ep->ssl = SSL_new(ep->ctx);
-    LOG_PRINTF("Create ssl successfully\n");        
-
     SSL_set_accept_state(ep->ssl);
-    LOG_PRINTF("set SSL state successfully\n");
-
     SSL_set_fd(ep->ssl, socket);
-    LOG_PRINTF("get and set fd successfully\n");
 }
 
 void initClientEndpoint(SSLEndpoint* ep, int socket) {
@@ -88,13 +81,7 @@ void initClientEndpoint(SSLEndpoint* ep, int socket) {
 
     SSL_CTX_set_options(ep->ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
 
-    LOG_PRINTF("Set options successfully\n");        
     ep->ssl = SSL_new(ep->ctx);
-    LOG_PRINTF("Create ssl successfully\n");        
-
     SSL_set_connect_state(ep->ssl);
-    LOG_PRINTF("set SSL state successfully\n");        
-
     SSL_set_fd(ep->ssl, socket);
-    LOG_PRINTF("get and set fd successfully\n");
 }

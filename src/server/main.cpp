@@ -38,9 +38,6 @@ void tcp_server() {
     listen(server_socket, kConnectionReqs);
 
     initSSL();
-    LOG_PRINTF("Init ssl successfully\n");
-
-    LOG_PRINTF("Init endpoint successfully\n");
 
     bool end_recv = false;
     while(true) { 
@@ -76,7 +73,6 @@ void tcp_server() {
             }
     
             SSL_write(ep.ssl, buffer, strlen(buffer));
-            // send(client_socket, buffer, strlen(buffer), 0);
         }
         close(client_socket);
 

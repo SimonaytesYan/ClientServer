@@ -33,18 +33,13 @@ int main(int argc, char** argv) {
 void tcp_client() {
 
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-
     sockaddr_in server_addr = createServerAddr();
-
     connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    LOG_PRINTF("Connect successfully\n");
     
     initSSL();
-    LOG_PRINTF("Init ssl successfully\n");
 
     SSLEndpoint ep;
     initClientEndpoint(&ep, client_socket);
-    LOG_PRINTF("Init endpoint successfully\n");
 
     int err = SSL_connect(ep.ssl);
     if (err <= 0) {
@@ -63,16 +58,10 @@ void tcp_client() {
             break;
 
         LOG_PRINTF("ssl write\n");
-        // send(client_socket, buffer, strlen(buffer), 0);
         int res = SSL_write(ep.ssl, buffer, strlen(buffer));
-
-        LOG_PRINTF("res = %d\n", res);
-
-        LOG_PRINTF("send\n");
     
         memset(buffer, 0, kBufferSize);
         int read_n = SSL_read(ep.ssl, buffer, sizeof(buffer));
-        // size_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
         LOG_PRINTF("client: TCP (%d)<%s>\n", read_n, buffer);
     }
 
