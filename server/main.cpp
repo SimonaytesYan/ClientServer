@@ -13,6 +13,10 @@ void udp_server();
 
 int main(int argc, char** argv) {
 
+    if (argc != 2) {
+        printf("Wrong numer of arguments\n");
+    }
+
     if (!strcmp(argv[1], "tcp")) {
         printf("TCP server\n");
         tcp_server();

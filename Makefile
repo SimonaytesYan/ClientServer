@@ -1,7 +1,7 @@
 BIN = bin
 OBJ = obj
 COMPILER = g++
-FLAGS = -O2
+FLAGS = -O2 -fsanitize=address -g  
 
 run_tcp: prepare $(BIN)/server $(BIN)/client
 #	./$(BIN)/server "tcp" &

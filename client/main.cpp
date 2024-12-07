@@ -13,6 +13,11 @@ void udp_client();
 void tcp_client();
 
 int main(int argc, char** argv) {
+
+    if (argc != 2) {
+        printf("Wrong numer of arguments\n");
+    }
+
     if (!strcmp(argv[1], "tcp")) {
         printf("TCP client\n");
         tcp_client();
@@ -34,10 +39,12 @@ void tcp_client() {
         char buffer[kBufferSize] = {};
 
         scanf("%s", buffer);
+        printf("Got <%s>\n", buffer);
         if (!strcmp(buffer, kEndRequests))
             break;
 
         send(client_socket, buffer, strlen(buffer), 0);
+        printf("send\n");
     
         memset(buffer, 0, kBufferSize);
         size_t read_n = recv(client_socket, buffer, sizeof(buffer), 0);
