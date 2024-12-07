@@ -34,7 +34,7 @@ void tcp_client() {
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in server_addr = createServerAddr();
     connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    
+
     TLS tls;
     SSLEndpoint ep = tls.getClientEndpoint(client_socket);
 
