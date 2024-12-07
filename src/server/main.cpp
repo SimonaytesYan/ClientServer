@@ -13,6 +13,7 @@ const char*  kEndRequests    = "stop";
 
 void tcp_server();
 void udp_server();
+bool work_with_client(TLS& tls, int server_socket);
 
 int main(int argc, char** argv) {
 
@@ -36,12 +37,12 @@ void tcp_server() {
     bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
     listen(server_socket, kConnectionReqs);
-
-    initSSL();
+    
+    TLS tls;
 
     bool end_recv = false;
     while(true) { 
-        end_recv = work_with_client(server_socket);
+        end_recv = work_with_client(tls, server_socket);
         if (end_recv)
             break;
     }
@@ -49,16 +50,17 @@ void tcp_server() {
     close(server_socket);
 }
 
-bool work_with_client(int server_socket) {
+bool work_with_client(TLS& tls, int server_socket) {
+    LOG_PRINTF("Work with client\n");
+
     int client_socket = accept(server_socket, nullptr, nullptr);
 
-    SSLEndpoint ep;
-    initServerEndpoint(&ep, client_socket);
+    SSLEndpoint ep = tls.getServerEndpoint(client_socket);
 
     int err = SSL_accept(ep.ssl);
     if (err <= 0) {
         LOG_PRINTF("Error creating SSL connection.  err=%x\n", err);
-        return;
+        return false;
     }
 
     while (true) {

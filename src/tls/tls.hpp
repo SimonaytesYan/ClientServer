@@ -8,6 +8,13 @@ struct SSLEndpoint {
     SSL_CTX *ctx;
 };
 
-void initSSL();
-void initServerEndpoint(SSLEndpoint* ep, int socket);
-void initClientEndpoint(SSLEndpoint* ep, int socket);
+struct TLS {
+    TLS(const char* certificate = "../ca/server.crt", const char* key = "../ca/server.key");
+
+    SSLEndpoint getClientEndpoint(int socket);
+    SSLEndpoint getServerEndpoint(int socket);
+
+private:
+    const char* TLSCertificate = "../ca/server.crt";
+    const char* privateKey     = "../ca/server.key";
+};

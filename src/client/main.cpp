@@ -16,9 +16,11 @@ void tcp_client();
 
 int main(int argc, char** argv) {
 
-    if (argc != 2) {
+    if (argc < 2) {
         LOG_PRINTF("Wrong numer of arguments\n");
     }
+
+    getopt(argc, argv, "kc");
 
     if (!strcmp(argv[1], "tcp")) {
         LOG_PRINTF("TCP client\n");
@@ -35,18 +37,14 @@ void tcp_client() {
     sockaddr_in server_addr = createServerAddr();
     connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
     
-    initSSL();
-
-    SSLEndpoint ep;
-    initClientEndpoint(&ep, client_socket);
+    TLS tls;
+    SSLEndpoint ep = tls.getClientEndpoint(client_socket);
 
     int err = SSL_connect(ep.ssl);
     if (err <= 0) {
         LOG_PRINTF("Error creating SSL connection.  err=%x\n", err);
         return;
     }
-
-    LOG_PRINTF("SSL_connect successfully!\n");
 
     while (true) {
         char buffer[kBufferSize] = {};

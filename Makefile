@@ -1,7 +1,8 @@
 BIN = bin
 OBJ = obj
 COMPILER = g++
-FLAGS = -O2 -fsanitize=address -g -lssl -lcrypto
+FLAGS = -O2 -lssl -lcrypto
+# FLAGS = -O2 -fsanitize=address -g -lssl -lcrypto
 
 SRC = src
 
