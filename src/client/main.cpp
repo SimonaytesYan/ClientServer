@@ -31,7 +31,6 @@ int main(int argc, char** argv) {
 }
 
 void tcp_client() {
-
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in server_addr = createServerAddr();
     connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
@@ -53,11 +52,9 @@ void tcp_client() {
         char buffer[kBufferSize] = {};
 
         scanf("%s", buffer);
-        LOG_PRINTF("Got <%s>\n", buffer);
         if (!strcmp(buffer, kEndRequests))
             break;
 
-        LOG_PRINTF("ssl write\n");
         int res = SSL_write(ep.ssl, buffer, strlen(buffer));
     
         memset(buffer, 0, kBufferSize);

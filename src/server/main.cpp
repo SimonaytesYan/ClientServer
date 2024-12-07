@@ -41,46 +41,48 @@ void tcp_server() {
 
     bool end_recv = false;
     while(true) { 
-
-        int client_socket = accept(server_socket, nullptr, nullptr);
-
-        SSLEndpoint ep;
-        initServerEndpoint(&ep, client_socket);
-
-        int err = SSL_accept(ep.ssl);
-        if (err <= 0) {
-            LOG_PRINTF("Error creating SSL connection.  err=%x\n", err);
-            return;
-        }
-        LOG_PRINTF("SSL_accept successfully!\n");
-
-        while (true) {
-            char buffer[kBufferSize] = {};
-            
-            int read_n = SSL_read(ep.ssl, buffer, sizeof(buffer));
-            if (read_n == 0) {
-                LOG_PRINTF("server: stop reading\n");
-                break;
-            }
-
-            LOG_PRINTF("server: TCP (%d) <%s>\n", read_n, buffer);
-            memset(buffer, 0, kBufferSize);
-
-            scanf("%s", buffer);
-            if (!strcmp(buffer, kEndRequests)) {
-                end_recv = true;
-                break;
-            }
-    
-            SSL_write(ep.ssl, buffer, strlen(buffer));
-        }
-        close(client_socket);
-
+        end_recv = work_with_client(server_socket);
         if (end_recv)
             break;
     }
 
     close(server_socket);
+}
+
+bool work_with_client(int server_socket) {
+    int client_socket = accept(server_socket, nullptr, nullptr);
+
+    SSLEndpoint ep;
+    initServerEndpoint(&ep, client_socket);
+
+    int err = SSL_accept(ep.ssl);
+    if (err <= 0) {
+        LOG_PRINTF("Error creating SSL connection.  err=%x\n", err);
+        return;
+    }
+
+    while (true) {
+        char buffer[kBufferSize] = {};
+            
+        int read_n = SSL_read(ep.ssl, buffer, sizeof(buffer));
+        if (read_n == 0) {
+            LOG_PRINTF("server: stop reading\n");
+            break;
+        }
+
+        LOG_PRINTF("server: TCP (%d) <%s>\n", read_n, buffer);
+        memset(buffer, 0, kBufferSize);
+
+        scanf("%s", buffer);
+        if (!strcmp(buffer, kEndRequests)) {
+            return true;
+        }
+    
+        SSL_write(ep.ssl, buffer, strlen(buffer));
+    }
+    close(client_socket);
+
+    return false;
 }
 
 void udp_server() { 
