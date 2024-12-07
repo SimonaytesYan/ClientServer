@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #include "../tls/tls.hpp"
 #include "../logPrintf.hpp"
@@ -11,19 +12,25 @@ const size_t kConnectionReqs = 1;
 const size_t kBufferSize     = 1024;
 const char*  kEndRequests    = "stop";
 
-void tcp_server();
+void tcp_server(char* key, char* certificate);
 void udp_server();
 bool work_with_client(TLS& tls, int server_socket);
 
+
 int main(int argc, char** argv) {
 
-    if (argc != 2) {
+    if (argc < 2) {
         LOG_PRINTF("Wrong numer of arguments\n");
     }
 
     if (!strcmp(argv[1], "tcp")) {
         LOG_PRINTF("TCP server\n");
-        tcp_server();
+        if (argc == 4)
+            tcp_server(argv[2], argv[3]);
+        else if (argc == 2)
+            tcp_server(nullptr, nullptr);
+        else
+            LOG_PRINTF("Wrong numer of arguments\n");
     }
     else {
         LOG_PRINTF("UDP server\n");
@@ -31,7 +38,7 @@ int main(int argc, char** argv) {
     }
 }
 
-void tcp_server() {
+void tcp_server(char* key, char* certificate) {
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in server_addr = createServerAddr();
     bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr));
